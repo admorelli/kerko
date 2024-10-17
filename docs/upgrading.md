@@ -1,5 +1,63 @@
 # How to upgrade
 
+**Before attempting any upgrade**, it is highly recommended that you do a backup
+of all of your code, configuration files, data files, and Python virtual
+environment.
+
+## From 1.0.x to 1.1.x or 1.2.x
+
+### KerkoApp
+
+The instructions below make the assumption that you have cloned KerkoApp from
+its Git repository.
+
+- Go to the KerkoApp directory.
+- Get the desired version of KerkoApp. You may check the list of [available
+  versions][KerkoApp versions]. For version 1.1.0, for example, replace
+  `VERSION` with `1.1.0` in the command below:
+
+    ```bash
+    git fetch && git checkout VERSION
+    ```
+
+- Activate your Python [virtual environment][venv].
+- Install Python dependencies:
+
+    ```bash
+    pip install --force-reinstall -r requirements/run.txt
+    ```
+
+- Adapt your configuration file:
+    - Make sure the `kerko.feeds.fields` parameter is either omitted or has at
+      least the following values: `["id", "data", "item_fields"]`.
+- Rebuild your search index using the following commands:
+
+    ```bash
+    flask kerko clean index
+    flask kerko sync index
+    ```
+
+- Restart the application.
+
+### Custom applications
+
+If you have a custom application, the following changes will need to be applied:
+
+- The application is now responsible for instantiating the blueprint by calling
+  `kerko.make_blueprint()`. Any previous uses of the global `kerko.blueprint`
+  object must be replaced, as Kerko no longer provides it. If registration was
+  your application's only use of that object, the change could look like:
+
+    ```python title="Before"
+    app.register_blueprint(kerko.blueprint, url_prefix='/bibliography')
+    ```
+
+    ```python title="After"
+    app.register_blueprint(kerko.make_blueprint(), url_prefix='/bibliography')
+    ```
+
+    ... where `app` is the `Flask` object.
+
 ## From 0.9 to 1.0.x
 
 Version 1.0.x brings significant changes on how Kerko can be configured. Before
@@ -154,8 +212,7 @@ its Git repository.
   parameters, then rename KerkoApp's `data` directory to `instance`.
 - Make sure your WSGI server now references the application as `wsgi.app` (or
   `wsgi:app`) instead of `kerkoapp.app` (or `kerkoapp:app`).
-- Rebuild your search index using the following commands, then restart the
-  application:
+- Rebuild your search index using the following commands:
 
     ```bash
     flask kerko clean index

@@ -12,10 +12,10 @@ value if omitted from your configuration.
     configuration parameters that are not described in this manual. To find
     those, please refer to the documentation of the relevant package.
 
-!!! warning "Changing the configuration can be disruptive"
+!!! warning "Changing the Kerko configuration can be disruptive"
 
-    Making any change to a configuration file requires that you at least restart
-    the application afterwards for the change to become effective.
+    Making any change to a Kerko configuration file requires that you at least
+    restart the application afterwards for the change to become effective.
 
     Moreover, some parameters have an effect on the structure of the cache or
     the search index that Kerko depends on. Changing this kind of parameter may
@@ -28,6 +28,13 @@ value if omitted from your configuration.
     them as environment variables. However, that prefix should be omitted when
     the same parameter is set in a TOML file. See [environment variables] for
     details.
+
+!!! tip "Be a minimalist, only set a parameter when necessary"
+
+    If a parameter's default value works for you, just omit that parameter from
+    your configuration file. Your configuration file will be much smaller and
+    easier to read, and you will have less things to check when eventually
+    upgrading Kerko.
 
 ---
 
@@ -84,8 +91,6 @@ index, and file attachments. This may be provided as an absolute path or as a
 relative path. If a relative path is given, it will be relative to
 [`INSTANCE_PATH`](#instance_path).
 
-It is typically unnecessary to set both `DATA_PATH` and `INSTANCE_PATH`.
-
 Type: String <br>
 Default value: `"kerko"`
 
@@ -96,14 +101,11 @@ Default value: `"kerko"`
 The instance path specifies a directory where the application may store data and
 configuration files.
 
-It is unnecessary to set `INSTANCE_PATH` if you are already setting
-[`DATA_PATH`](#data_path) as an absolute path.
-
 Type: String <br>
 Default value: [Determined by Flask][Flask instance folder]. In practice, the
 default for KerkoApp users is a directory named `instance` located at the same
 level as the `wsgi.py` file. You may set `INSTANCE_PATH` to a different
-directory, which you must provide as an **absolute path**.
+directory, which you must specify as an **absolute path**.
 
 !!! warning "Environment variable only"
 
@@ -168,9 +170,31 @@ Type: String
 
 ## `ZOTERO_API_KEY`
 
-Your Zotero API key, as [created on
-zotero.org](https://www.zotero.org/settings/keys/new). We recommend that you
-create a read-only API key, as Kerko does not need to write to your library.
+This parameter specifies your Zotero API key, as [created on
+zotero.org](https://www.zotero.org/settings/keys/new).
+
+Kerko does not need to write to your library. Thus, we recommend that your API
+key be read-only, and that it does not grant any more access to your Zotero data
+than strictly necessary.
+
+On zotero.org, the API key creation options vary on whether you want to connect
+Kerko to a personal library or to a group library:
+
+=== "Personal library"
+
+    Make sure to check **Allow library access**, as well as **Allow notes
+    access**, unless you are certain you won't need any Kerko feature that
+    relies on notes. If you are unsure at this point, we recommend that you
+    allow notes access, otherwise some features might not work, and when that
+    happens you might not remember that it is the API key that is blocking notes
+    access. You can always edit the API key later.
+
+=== "Group library"
+
+    We recommend that you use **Per group permissions** so that access is
+    strictly restricted to the chosen group. Make sure that **Read Only** is
+    selected for that group. This will grant read-only access to all items of
+    that group, including notes.
 
 This parameter is **required** and has no default value.
 
@@ -180,11 +204,20 @@ Type: String
 
 ## `ZOTERO_LIBRARY_ID`
 
-The identifier of the Zotero library to get data from. For a personal library
-the value is your _userID_, as found on https://www.zotero.org/settings/keys
-(you must be logged-in). For a group library this value is the _groupID_ of the
-library, as found in the URL of the library (e.g., the _groupID_ of the library
-at https://www.zotero.org/groups/2348869/kerko_demo is `"2348869"`).
+The identifier of the Zotero library to get data from.
+
+Finding your library ID:
+
+=== "Personal library"
+
+    For a personal library, the value is your _userID_, as [found on
+    zotero.org](https://www.zotero.org/settings/keys) (you must be logged-in).
+
+=== "Group library"
+
+    For a group library this value is the _groupID_ of the library, as found in
+    the URL of the library (e.g., the _groupID_ of the library at
+    `https://www.zotero.org/groups/2348869/kerko_demo` is `"2348869"`).
 
 This parameter is **required** and has no default value.
 
@@ -317,18 +350,19 @@ key is used internally by Kerko to identify the facet.
 
 The default facets are:
 
-- `item_type`
-- `link`
-- `tag`
-- `year`
+- `item_type` (item types facet, enabled by default)
+- `language` (item languages facet, disabled by default)
+- `link` (items with links facet, disabled by default)
+- `tag` (item tags facet, enabled by default)
+- `year` (item years facet, enabled by default)
 
-You may define additional facets.
+You may define additional facets. See [Defining custom facets based on Zotero collections].
 
 !!! warning "Modifies the search index"
 
-    Changing any of the `kerko.facets.*` parameters will require that you run
-    the `clean index` and `sync index` commands. See [synchronization commands]
-    for details.
+    Most of the `kerko.facets.*` parameters require that you run the
+    `clean index` and `sync index` commands after you have changed them.
+    See [synchronization commands] for details.
 
 ### `collection_key`
 
@@ -339,22 +373,24 @@ if it contains at least one item that is not excluded through the
 [`kerko.zotero.item_include_re`](#item_include_re) or
 [`kerko.zotero.item_exclude_re`](#item_exclude_re) parameters.
 
-The `collection_key` parameter is only allowed when the [`type`](#type)
-parameter is set to `"collection"`.
+This parameter has no default value and is **required** for facets whose
+[`type`](#type) parameter is set to `"collection"`.
 
-Type: String
+Type: String <br>
 
 ### `enabled`
 
 Enable the facet.
 
-Type: Boolean
+Type: Boolean <br>
+Default value: depends on which facet you are looking at.
 
 ### `filter_key`
 
 Key to use in URLs when filtering with the facet.
 
-Type: String
+Type: String <br>
+Default value: depends on which facet you are looking at.
 
 ### `initial_limit`
 
@@ -362,7 +398,8 @@ Maximum number of filters to show by default under the facet. Excess filters
 will be shown if the user clicks a "view more" button. A value of `0` means no
 limit.
 
-Type: Integer
+Type: Integer <br>
+Default value: depends on which facet you are looking at.
 
 ### `initial_limit_leeway`
 
@@ -370,32 +407,37 @@ If the number of filters under the facet exceeds `initial_limit` by this
 tolerance margin or less, all filters will be shown. A value of `0` means no
 tolerance margin.
 
-Type: Integer
+Type: Integer <br>
+Default value: depends on which facet you are looking at.
 
 ### `item_view`
 
 Show the facet on item view pages.
 
-Type: Boolean
+Type: Boolean <br>
+Default value: depends on which facet you are looking at.
 
 ### `sort_by`
 
 List of criteria used for sorting the filters under the facet. Allowed values in
 this list are `"count"` and `"label"`.
 
-Type: Array of strings
+Type: Array of strings <br>
+Default value: depends on which facet you are looking at.
 
 ### `sort_reverse`
 
 Reverse the sort order of the filters under the facet.
 
-Type: Boolean
+Type: Boolean <br>
+Default value: depends on which facet you are looking at.
 
 ### `title`
 
 Heading of the facet.
 
-Type: String
+Type: String <br>
+Default value: depends on which facet you are looking at.
 
 ### `type`
 
@@ -405,6 +447,7 @@ Allowed values are:
 
 - `"collection"`: Use a Zotero collection as source.
 - `"item_type"`: Use the item type as source.
+- `"language"`: Use item Language field as source.
 - `"link"`: Use item URL field as source.
 - `"tag"`: Use Zotero tags as source.
 - `"year"`: Use the item year field as source.
@@ -418,7 +461,85 @@ Type: String
 Relative position of the facet in lists. Facets with low weights (small numbers)
 rise above heavier ones (large numbers).
 
-Type: Integer
+Type: Integer <br>
+Default value: depends on which facet you are looking at.
+
+## `kerko.facets.language.`
+
+The parameters in this section only apply to the `language` facet.
+
+Source values for the language facet are extracted from the Language field of
+Zotero items.
+
+### `allow_invalid`
+
+Allow values that are not found in the [pycountry] language database.
+
+This parameter has an effect only if [`normalize`](#normalize) is set to `true`.
+
+If this parameter is set to `true`, non-standard or badly entered language names
+will be allowed to appear in the language facet. You may find that you have to
+clean your data in Zotero if you wish to make the facet usable.
+
+If this parameter is set to `false`, non-standard or badly entered language
+names will be omitted from the language facet. The facet will only show
+recognized languages but may give an incomplete picture of all the languages
+present in your library.
+
+Type: Boolean <br>
+Default value: `true`
+
+### `locale`
+
+The locale to use when displaying language names in the language facet.
+Translations are provided by [pycountry].
+
+This parameter has an effect only if [`normalize`](#normalize) is set to `true`.
+
+Type: String <br>
+Default value: `"en"`
+
+### `normalize`
+
+Normalize language names using the [pycountry] language database.
+
+If this parameter is set to `true`, slight inconsistencies in your data can be
+attenuated, preventing unwanted duplicates in the facet. For example, values
+such as `fr`, `FR`, `fra`, `Fra`, `fre`, `fr-FR`, `fr-fr`, `fr-CA`, or `French`
+will all fall under a single `French` term in the facet. The normalization
+process is case insensitive, ignores country or area codes, and recognizes:
+
+- 3-letter ISO 639-3 language codes;
+- 3-letter ISO 639-2 bibliographic (B) codes;
+- 2-letter ISO 639-1 codes;
+- English language names.
+
+Terms not falling into any of the above categories will be considered invalid.
+To choose what to do with invalid terms, see the
+[`allow_invalid`](#allow_invalid) parameter.
+
+For the best results with the `normalize` option, we recommend that you record
+languages in Zotero using 2-letter ISO 639-1 codes (because they also happen to
+be [supported by the Citation Style Language][CSL_locale]), or 3-letter [ISO
+639-3] codes for languages not covered by ISO 639-1.
+
+If `normalize` is set to `false`, item language values will be used verbatim. In
+that case, the facet will work equally well if your language data is well
+controlled and consistent. This is the way to go if languages are consistently
+recorded using their non-English names in your Zotero library.
+
+Type: Boolean <br>
+Default value: `true`
+
+### `values_separator_re`
+
+[Regular expression] to use for splitting the content of Zotero's Language field
+into multiple languages, e.g., `en; de; it`. We do not necessarily recommend
+recording multiple languages in the Language field, but in practice some people
+do when describing multilingual resources.
+
+Type: String <br>
+Default value: `";"`
 
 ---
 
@@ -596,12 +717,15 @@ Default value: `["atom"]`
 
 ### `fields`
 
-List of fields to retrieve for each feed item (these may be used by the
-`kerko.templates.atom_feed` template). Values in this list are keys identifying
-fields defined in the `kerko_composer` object. One probably only needs to change
-the default list when overriding the template to display additional fields. Note
-that some fields from the default list may be required by Kerko, and removing
-those could cause crashes.
+List of fields to retrieve for each feed item. Values in this list are keys
+identifying fields defined in the `kerko_composer` object, and the list must
+contain all fields that are used by the `kerko.templates.atom_feed` template.
+
+One probably only needs to change the default list when overriding the template
+to display additional fields.
+
+Note that some fields from the default list may be required by Kerko, and
+removing those could cause crashes.
 
 Type: Dictionary
 
@@ -659,10 +783,11 @@ Type: String
 
 ### `endpoint`
 
-Name of the endpoint within the application. Use this for internal links. For
-example, the endpoint for the Kerko search page is `"kerko.search"`.
+Name of the endpoint within the application to use as target for the link. Use
+this for internal links. For example, the endpoint for the Kerko search page is
+`"kerko.search"`.
 
-This parameter is **required** when the [`type`](#type_1) parameter is set to
+This parameter is **required** if the [`type`](#type_1) parameter is set to
 `"endpoint"` and has no default value.
 
 Type: String
@@ -684,6 +809,16 @@ Open the link in a new tab.
 
 Type: Boolean <br>
 Default value: `false`
+
+### `page`
+
+Key of the page to use as target for the link. That page must have been defined
+in [`kerko.pages.*`](#kerkopages).
+
+This parameter is **required** if the [`type`](#type_1) parameter is set to
+`"page"` (and cannot be used with other `type` values).
+
+Type: String <br>
 
 ### `parameters`
 
@@ -715,13 +850,14 @@ Type: String
 
 ### `type`
 
-Type of link. Other parameters may or may not be available depending on this
-value.
+Type of link being configured. Other parameters may or may not be available
+depending on this value.
 
 Allowed values are:
 
-- `"endpoint"`: Define an internal link (served by a Flask endpoint).
-- `"url"`: Define a link to an arbitrary URL.
+- `"endpoint"`: Link to an application page (served by a Flask endpoint).
+- `"page"`: Link to a page defined in [`kerko.pages.*`](#kerkopages).
+- `"url"`: Link to an arbitrary URL.
 
 This parameter is **required** and has no default value.
 
@@ -731,7 +867,7 @@ Type: String
 
 URL of the external link.
 
-This parameter is **required** when the [`type`](#type_1) parameter is set to
+This parameter is **required** if the [`type`](#type_1) parameter is set to
 `"url"`.
 
 Type: String
@@ -751,7 +887,7 @@ Default value: `0`
 
 ### `google_analytics_id`
 
-A Google Analytics stream ID, e.g., `'G-??????????'`.
+A Google Analytics measurement ID, e.g., `'G-??????????'`.
 
 If the value is not empty *and* Flask is not running in debug mode, then the
 Google Analytics tag is inserted into the pages.
@@ -775,6 +911,35 @@ Default value: `true` (i.e., enabled).
 The title to display in web pages.
 
 Type: String
+
+---
+
+## `kerko.pages.*.`
+
+Simple content pages, where `*` is an arbitrary key you must choose to uniquely
+identify the page. The content of the page will come from a Zotero standalone
+note of your choosing.
+
+The key can be used in [`kerko.link_groups.*`](#kerkolink_groups) tables to
+define hyperlinks to the page.
+
+### `path`
+
+The path to use in the URL of the page. Must start with a slash (`/`) character.
+
+Type: String <br>
+
+### `item_id`
+
+The Zotero item ID of the note to use as content for the page.
+
+Type: String <br>
+
+### `title`
+
+The title of the page.
+
+Type: String <br>
 
 ---
 
@@ -836,10 +1001,12 @@ The default scopes are:
 - `creator`
 - `fulltext`
 - `metadata`
+- `pubyear`
 - `title`
 
-You may define additional scopes. To link fields to scopes, see
-[`kerko.search_fields.scopes`](#scopes).
+You may define additional scopes.
+
+To link fields to scopes, see [`kerko.search_fields.scopes`](#scopes).
 
 ### `breadbox_label`
 
@@ -1311,12 +1478,16 @@ Type: Integer <br>
 Default value: `0`
 
 
+[CSL_locale]: https://github.com/citation-style-language/locales/wiki
 [environment variables]: config-basics.md#environment-variables
 [Ensuring full-text indexing of your attachments in Zotero]: config-guides.md#ensuring-full-text-indexing-of-your-attachments-in-zotero
+[Defining custom facets based on Zotero collections]: config-guides.md#defining-custom-facets-based-on-zotero-collections
 [Flask instance folder]: https://flask.palletsprojects.com/en/2.3.x/config/#instance-folders
 [Flask proxy]: https://flask.palletsprojects.com/en/2.3.x/deploying/proxy_fix/
+[ISO 639-3]: https://iso639-3.sil.org/code_tables/639/data/all
 [KerkoApp]: https://github.com/whiskyechobravo/kerkoapp
 [Python logging documentation]: https://docs.python.org/3/library/logging.html
+[pycountry]: https://github.com/pycountry/pycountry
 [pytz]: https://pypi.org/project/pytz/
 [Regular expression]: https://docs.python.org/3/library/re.html
 [synchronization commands]: synchronization.md#command-line-interface-cli

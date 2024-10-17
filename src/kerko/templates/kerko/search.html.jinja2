@@ -74,7 +74,7 @@
                 <h2 class="{% block results_heading_classes %}d-inline mb-2{% endblock %}">
                     {{- title }}
                     {%- if search_results %}
-                        <span class="badge badge-light">{% trans count=total_count, count_formatted=total_count_formatted|safe %}{{ count_formatted }} resource{% pluralize %}{{ count_formatted }} resources{% endtrans %}</span>
+                        <span class="{% block results_count_classes %}badge badge-light{% endblock %}">{% trans count=total_count, count_formatted=total_count_formatted|safe %}{{ count_formatted }} resource{% pluralize %}{{ count_formatted }} resources{% endtrans %}</span>
                     {%- endif %}
                 </h2>
             </div>
@@ -129,7 +129,7 @@
                             {%- if show_download_link %}
                                 <div class="{% block download_link_wrapper_classes %}d-inline-block d-print-none mb-1{% endblock %}">
                                     <div class="dropdown">
-                                        <button class="{% block download_btn_classes %}btn btn-secondary btn-light dropdown-toggle{% endblock %}" type="button" id="download-options" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <button class="{% block download_btn_classes %}btn btn-light dropdown-toggle{% endblock %}" type="button" id="download-options" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <span class="fas fa-download" aria-hidden="true"></span> {% trans count=total_count, count_formatted=total_count_formatted|safe %}Download this record{% pluralize %}Download {{ count_formatted }} records{% endtrans -%}
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right dropdown-width-300" aria-labelledby="download-options">
@@ -145,7 +145,7 @@
                             {%- endif %}
                             {%- if atom_feed_url %}
                                 <div class="{% block atom_feed_link_wrapper_classes %}d-inline-block d-print-none mb-1{% endblock %}">
-                                    <a class="{% block atom_feed_btn_classes %}btn btn-light{% endblock %}" href="{{ atom_feed_url }}" type="application/atom+xml" {% if atom_feed_help %}title="{{ atom_feed_help|escape }}"{% endif %} target="_blank">
+                                    <a class="{% block atom_feed_btn_classes %}btn btn-light{% endblock %}" href="{{ atom_feed_url }}" type="application/atom+xml" {% if atom_feed_help %}title="{{ atom_feed_help|escape }}"{% endif %} target="_blank" rel="noopener">
                                         <span class="fas fa-rss" aria-hidden="true"></span> {{ atom_feed_title }}
                                     </a>
                                 </div>
@@ -163,14 +163,14 @@
                 </div>
             {%- endblock search_results_footer %}
         {%- else %}
-            {%- trans %}
-                <p>Suggestions:</p>
+            {%- block search_suggestions %}
+                <p>{{ _("Suggestions:") }}</p>
                 <ul>
-                    <li>Make sure that all words are spelled correctly.</li>
-                    <li>Try different words.</li>
-                    <li>Try more general terms.</li>
+                    <li>{{ _("Make sure that all words are spelled correctly.") }}</li>
+                    <li>{{ _("Try different words.") }}</li>
+                    <li>{{ _("Try more general terms.") }}</li>
                 </ul>
-            {%- endtrans %}
+            {%- endblock search_suggestions %}
         {%- endif %}
     {%- endblock search_results %}
 {%- endblock content_inner %}
@@ -190,15 +190,19 @@
                 <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h2 id="facets-modal-label" class="modal-title">{{ _("Explore") }}</h2>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal" {{ title_aria_label(_('Close Explore panel')) }}>
-                                <span class="fas fa-times" aria-hidden="true"></span>
-                            </button>
+                            {%- block facets_modal_header %}
+                                <h2 id="facets-modal-label" class="modal-title">{{ _("Explore") }}</h2>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" {{ title_aria_label(_('Close Explore panel')) }}>
+                                    <span class="fas fa-times" aria-hidden="true"></span>
+                                </button>
+                            {%- endblock facets_modal_header %}
                         </div>
                         <div id="facets-modal-body" class="modal-body">
-                            <div class="my-3 text-right">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="{{ _('Close Explore panel') }}">{{ _("Close") }}</button>
-                            </div>
+                            {%- block facets_modal_inner %}
+                                <div class="my-3 text-right">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="{{ _('Close Explore panel') }}">{{ _("Close") }}</button>
+                                </div>
+                            {%- endblock facets_modal_inner %}
                         </div>
                     </div>
                 </div>

@@ -21,15 +21,15 @@ def get_storage_dir(storage):
 
 def load_object(storage, key, default=None):
     try:
-        with open(get_storage_dir(storage) / f'{key}.pickle', 'rb') as f:
+        with pathlib.Path(get_storage_dir(storage) / f"{key}.pickle").open("rb") as f:
             return pickle.load(f)
-    except IOError:
+    except OSError:
         return default
 
 
 def save_object(storage, key, obj):
     get_storage_dir(storage).mkdir(parents=True, exist_ok=True)
-    with open(get_storage_dir(storage) / f'{key}.pickle', 'wb') as f:
+    with pathlib.Path(get_storage_dir(storage) / f"{key}.pickle").open("wb") as f:
         pickle.dump(obj, f)
 
 
@@ -47,14 +47,12 @@ def open_index(storage, *, write=False, schema=None, auto_create=False):
 
     :param bool write: If `True`, make the index writable instead of read-only.
     """
-    index_dir = get_storage_dir(storage) / 'whoosh'
+    index_dir = get_storage_dir(storage) / "whoosh"
     try:
         index = None
         if not index_dir.exists() and auto_create and write:
             index_dir.mkdir(parents=True, exist_ok=True)
-            index = whoosh.index.create_in(
-                str(index_dir), schema() if callable(schema) else schema
-            )
+            index = whoosh.index.create_in(str(index_dir), schema() if callable(schema) else schema)
         elif index_dir.exists():
             index = whoosh.index.open_dir(str(index_dir), readonly=not write)
 
@@ -63,13 +61,15 @@ def open_index(storage, *, write=False, schema=None, auto_create=False):
                 return index
             if index.doc_count() > 0:  # In read mode, we expect some docs to be available.
                 return index
-            raise SearchIndexError(f"Empty {storage} in directory '{index_dir}'.")
+            msg = f"Empty {storage} in directory '{index_dir}'."
+            raise SearchIndexError(msg)
         raise SearchIndexError(
-            f"Could not open {storage} from directory '{index_dir}'. " +
-            (f"Please sync {storage}." if not write else '')
+            f"Could not open {storage} from directory '{index_dir}'. "
+            + (f"Please sync {storage}." if not write else "")
         )
     except whoosh.index.IndexError as e:
-        raise SearchIndexError(f"Error with {storage} in directory '{index_dir}': '{e}'.") from e
+        msg = f"Error with {storage} in directory '{index_dir}': '{e}'."
+        raise SearchIndexError(msg) from e
 
 
 def delete_storage(storage):

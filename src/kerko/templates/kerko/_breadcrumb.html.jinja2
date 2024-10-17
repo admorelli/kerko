@@ -1,8 +1,8 @@
 {%- macro breadcrumb_text(text) -%}
     {%- if config.kerko.breadcrumb.text_max_length -%}
-        {{- text|escape|truncate(config.kerko.breadcrumb.text_max_length, leeway=config.kerko.breadcrumb.text_max_length_leeway) -}}
+        {{- text|striptags|truncate(config.kerko.breadcrumb.text_max_length, leeway=config.kerko.breadcrumb.text_max_length_leeway)|escape -}}
     {%- else -%}
-        {{- text|escape -}}
+        {{- text -}}
     {%- endif -%}
 {%- endmacro %}
 
@@ -20,7 +20,7 @@
             {% if config.kerko.breadcrumb.include_current -%}
                 <li class="breadcrumb-item active" aria-current="page">
                     {%- if link.text -%}
-                        {{- breadcrumb_text(link.text) -}}
+                        {{- breadcrumb_text(link.text|escape) -}}
                     {%- else -%}
                         {{- breadcrumb_text(link) -}}
                     {%- endif -%}
@@ -28,7 +28,7 @@
             {%- endif -%}
         {%- else %}
             <li class="breadcrumb-item">
-                <a href="{{ link.url }}" {% if link.new_window %}target="_blank"{% endif %}>{{ breadcrumb_text(link.text) }}</a>
+                <a href="{{ link.url }}" {% if link.new_window %}target="_blank" rel="noopener"{% endif %}>{{ breadcrumb_text(link.text) }}</a>
             </li>
         {%- endif %}
     {%- endfor %}

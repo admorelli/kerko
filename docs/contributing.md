@@ -59,6 +59,16 @@ tox
     new tests!
 
 
+## Running the pre-commit hooks
+
+Pre-commit checks should be performed automatically whenever you perform a `git
+commit`. If you wish to run the checks manually, use this command:
+
+```bash
+pre-commit run --all-files
+```
+
+
 ## Working on the documentation
 
 To start a local live-reloading documentation server:
@@ -70,6 +80,27 @@ mkdocs serve
 Then view the documentation in your browser at <http://localhost:8000/>.
 
 
+## Building the distribution package
+
+When building the distribution package, a version number is dynamically
+extracted from the Git repository. For an official release, the Git head
+revision must be tagged prior to building the distribution package. When the
+revision is not tagged, a dev version number gets derived from the branch's most
+recent tag, with a suffix appended.
+
+To check the version number that will be generated:
+
+```bash
+hatch version
+```
+
+To build the distribution package in sdist and wheel formats:
+
+```bash
+hatch build
+```
+
+
 ## Submitting code changes
 
 Pull requests may be submitted against [Kerko's repository][Kerko]. Please
@@ -77,9 +108,7 @@ consider the following guidelines:
 
 - Before submitting, run the tests and make sure they pass. Add tests relevant
   to your change (those should fail if ran without your patch).
-- Use [Yapf](https://github.com/google/yapf) to autoformat your code (with
-  option `--style='{based_on_style: facebook, column_limit: 100}'`). Many
-  editors provide Yapf integration.
+- Use [Ruff](https://docs.astral.sh/ruff) to format Python code.
 - If a Jinja2 template represents a page fragment or a collection of macros,
   prefix its file name with the underscore character.
 - Update the relevant sections of the documentation.
@@ -105,10 +134,10 @@ issues).
 
 ## Supporting the project
 
-Nurturing an open source project such as Kerko, following up on issues and
-helping others in working with the system is a lot of work, but hiring the
-original developers of Kerko can do a lot in ensuring continued support and
-development of the project.
+Nurturing an open source project, following up on issues and helping others in
+working with the system is a lot of work. Hiring the original developers of
+Kerko can help make the project sustainable. It is the best way to ensure
+continued support and development of the project.
 
 If you need professional support related to Kerko, have requirements not
 currently implemented in Kerko, want to make sure that some Kerko issue

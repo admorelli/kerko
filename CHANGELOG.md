@@ -1,19 +1,135 @@
 # Changelog
 
+Before doing an upgrade, please check the "How to upgrade" section of the Kerko
+documentation.
+
 ## Unreleased
 
-Features:
+New features:
 
-- Add configuration parameters `kerko.performance.whoosh_index_memory_limit` and
-  `kerko.performance.whoosh_index_processors` to give some control over the
-  Whoosh search engine's indexing performance.
+- Allow the "lang_AREA" form (e.g., "en_US", "fr_FR") when normalizing language
+  values for the "Resource language" facet.
 
 Other changes:
 
-- Reduce the default memory limit used by Whoosh's index writer from 256 MB to
-  128 MB. This can prevent swapping with large libraries on small machines. The
-  limit may now be changed with the
+- Improve documentation.
+
+
+## 1.2.0 (2024-08-03)
+
+New features:
+
+- Add the "Resource language" facet. It is disabled by default, but can be
+  enabled by setting the `kerko.facets.language.enabled` configuration parameter
+  to `true`. By default, Kerko will try to normalize the language names to make
+  the facet more usable; see `kerko.facets.language.` in the configuration
+  parameters documentation for details.
+
+Removed features:
+
+- Custom translation management commands that depended on Setuptools and
+  `setup.py` have been removed. Equivalent `pybabel` commands can be used
+  instead (see the updated Localization section of the documentation).
+
+Other changes:
+
+- Change the default configuration for some parameters:
+    - `kerko.facets.item_type.initial_limit`, now `10` instead of `0`.
+    - `kerko.facets.item_type.initial_limit_leeway`, now `4` instead of `2`.
+    - `kerko.facets.link.initial_limit_leeway`, now `0` instead of `2`.
+    - `kerko.facets.tag.initial_limit`, now `10` instead of `0`.
+    - `kerko.facets.tag.initial_limit_leeway`, now `4` instead of `2`.
+    - `kerko.facets.year.initial_limit_leeway`, now `0` instead of `2`.
+- Update Portuguese translations. Thanks to Gonçalo Cordeiro.
+- Move project metadata from `setup.cfg` to `pyproject.toml`.
+- Build distribution package with Hatch instead of Setuptools.
+- Use dynamic package versioning so that installers such as `pip` do not mistake
+  a development version for a previously published version. Version numbers are
+  now extracted from the tags and revisions of the Git repository.
+- Reduce XML sitemaps size.
+- Improve documentation.
+
+Deprecated APIs:
+
+- The Python variable `kerko.TRANSLATION_DIRECTORIES` is deprecated and will be
+  removed in Kerko 2.x. The variable `kerko.TRANSLATION_DIRECTORY` should be
+  used instead, and its type is a string instead of a list. If you are using a
+  custom application, please adapt it accordingly (you may check KerkoApp's
+  `__init__.py` for an example).
+
+
+## 1.1.0 (2023-12-23)
+
+Features:
+
+- Add the "Publication year" search scope. It is enabled by default, but can be
+  disabled by setting the `kerko.scopes.pubyear.enabled` configuration parameter
+  to `false`.
+- Add new configuration parameter `kerko.pages.*.` for defining content pages
+  whose content come from selected Zotero standalone notes.
+- Add a `"page"` type for the `kerko.link_groups.*.` configuration table, to
+  allow the creation of links to content pages.
+- Add configuration parameters `kerko.performance.whoosh_index_memory_limit` and
+  `kerko.performance.whoosh_index_processors` to give some control over the
+  Whoosh search engine's indexing performance.
+- Allow italic, bold, subscript, superscript and small-caps on Zotero fields
+  (such as titles and abstracts) where [rich text formatting
+  tags](https://www.zotero.org/support/kb/rich_text_bibliography) are used.
+- Add Spanish translation. Thanks to [Albert
+  Ormazabal](https://github.com/aormazabal).
+
+Bug fixes:
+
+- Fix item title missing from item pages and from Atom feeds when item type is
+  Case, Email, or Statute.
+- Fix incorrect sorting of search results by title when item type is Case,
+  Email, or Statute.
+- Fix incorrect escaping of HTML markup in the HTML content elements of Atom
+  feeds.
+- Fix incorrect scope, analyzer, and boost factor associated with the `caseName`
+  search field.
+- Fix crash when a facet specifies no sort order.
+- Fix crash on empty search result pages when configuration parameter
+  `kerko.features.print_results_max_count` is greater than zero.
+- Fix badges displayed too close to title on item pages.
+
+Other changes:
+
+- Add `rel="noopener"` to `target="_blank"` links.
+- Add `rel="noreferrer"` to links derived from Zotero library data, e.g.,
+  user-provided URLs, DOIs, link attachments.
+- Reduce the default memory limit for Whoosh's index writer from 256 MB to 128
+  MB. This can prevent swapping with large libraries on small machines. The
+  default limit may now be changed with the
   `kerko.performance.whoosh_index_memory_limit` parameter.
+- Improve speed of single-item search pages, i.e., search pages having the
+  `page-len=1` URL parameter. This is achieved through removal of the `id`
+  parameter from pagination URLs. Obtaining those ids was requiring extra
+  processing. Instead, the `id` parameter is now added through the browser
+  History API when a pagination link is visited.
+- Add support for Python 3.12.
+- Replace pylint, pycodestyle, pydocstyle with Ruff.
+- Replace Yapf with Ruff formatter. Reformat whole code base.
+- Add pre-commit hooks. Run Ruff and other code checks on pre-commit.
+- Add template blocks to facilitate theming.
+- Improve documentation.
+
+Backwards incompatible changes:
+
+- Drop support for Python 3.7 (EOL).
+
+Possibly backwards incompatible changes (more or less internal API changes):
+
+- Kerko no longer provides a `kerko.blueprint` global object. Applications must
+  now instantiate the blueprint by calling `kerko.make_blueprint()` before
+  registering it. This prevents attempts to mutate the object after its
+  registration, especially in tests.
+- Upgrade many dependencies, including new major versions of Flask (3.x),
+  Flask-Babel (4.x), Werkzeug (3.x).
+- `kerko.extractors.TransformerExtractor` no longer applies transformers on
+  `None` values. If you need a transformer to process a `None` value (Kerko
+  itself has no such transformer), you now have to set the new `skip_none_value`
+  argument to `False` when instantiating the extractor.
 
 
 ## 1.0.0 (2023-07-24)
