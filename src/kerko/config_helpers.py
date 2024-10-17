@@ -169,9 +169,9 @@ class ZoteroModel(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    batch_size: int = Field(ge=20)
+    batch_size: int = Field(ge=1)
     max_attempts: int = Field(ge=1)
-    wait: int = Field(ge=120)
+    wait: int = Field(ge=5)
     csl_style: List[str]
     locale: str = Field(regex=r"^[a-z]{2,3}-[A-Za-z]+$")
     item_include_re: str
