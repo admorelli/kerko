@@ -504,12 +504,6 @@ class LinkGroupsModel(BaseModel):  # TODO: Pydantic v2: inherit RootModel.
             for key, links in self.__root__.items()
         }
 
-class BrandModel(BaseModel): #Brand Configuration Model(Local Dev)
-
-    url: str
-    width: int
-    height: int
-
 class KerkoModel(BaseModel):
     """Model for the kerko config table."""
 
@@ -520,7 +514,6 @@ class KerkoModel(BaseModel):
     features: FeaturesModel
     feeds: FeedsModel
     meta: MetaModel
-    brand: BrandModel
     pagination: PaginationModel
     breadcrumb: BreadcrumbModel
     pages: Optional[PagesModel]

@@ -47,9 +47,6 @@
     text-decoration: none;
   }
 }
-.navbar-brand {
-  white-space: normal;
-}
 .dropdown-width-300 {
   width: 300px;
   max-width: 90vw;
