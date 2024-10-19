@@ -1,7 +1,5 @@
 <a href="{{ url_for('kerko.search') }}" class="navbar-brand">
 
-  {%- if config.kerko.brand.url.length > 0 %}
-  <img src="{{ url_for('static', filename=config.kerko.brand.url) }}" width="{{ config.kerko.brand.width }}" height="{{ config.kerko.brand.height }}" class="d-inline-block align-top" alt="">
-  {%- endif %}
+  <img src="{{ url_for('kerko.static', filename=config.kerko.brand.url) }}" width="{{ config.kerko.brand.width }}" height="{{ config.kerko.brand.height }}" class="d-inline-block align-top" alt="">
     {{ config.kerko.meta.title }}
 </a>
