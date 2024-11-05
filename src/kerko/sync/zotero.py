@@ -97,8 +97,12 @@ def request_library_context(zotero_credentials):
 
 
 @retry_zotero
-def last_modified_version(zotero_credentials):
+def last_modified_library_version(zotero_credentials):
     return zotero_credentials.last_modified_version()
+
+@retry_zotero
+def last_modified_collection_version(zotero_credentials):
+    return zotero_credentials.collection_versions()
 
 
 @retry_zotero

@@ -49,7 +49,8 @@ def sync_cache(full=False):
         zotero_credentials
     )  # TODO: Load pickle & sync collections incrementally
     since = load_object('cache', 'item-version', default=0) if not full else 0
-    version = zotero.last_modified_version(zotero_credentials)
+    library_version = zotero.last_modified_library_version(zotero_credentials)
+    collection_version = zotero.last_modified_collection_version(zotero_credentials)
 
     cache = open_index("cache", schema=get_cache_schema, auto_create=True, write=True)
     writer = cache.writer(
@@ -126,9 +127,10 @@ def sync_cache(full=False):
         raise
     else:
         writer.commit()
-        save_object('cache', 'item-version', version)
+        save_object('cache', 'item-version', library_version)
+        save_object('cache', 'collection-version', collection_version)
         save_object("cache", "library", library_context)
         current_app.logger.info(
-            f"Cache sync successful, now at version {version} ({count} item(s) processed)."
+            f"Cache sync successful, now at version {library_version} ({count} item(s) processed)."
         )
     return count
