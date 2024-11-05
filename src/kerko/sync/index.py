@@ -20,17 +20,19 @@ def sync_index(full=False):  # noqa: ARG001
     library_context = load_object("cache", "library")
 
     cache = open_index("cache")
-    cache_version = load_object("cache", "version", default=0)
+    cache_item_version = load_object('cache', 'item-version', default=0)
+    index_item_version  =load_object('index', 'item-version', default=0)
 
     # FIXME: The following does not detect when just the collections have changed in the cache
     #        (with no item changes). Should check the collections_version!
     #        https://pyzotero.readthedocs.io/en/latest/#zotero.Zotero.collection_versions
-    if not cache_version:
+    if not cache_item_version:
         msg = "The cache is empty and needs to be synchronized first."
         raise SearchIndexError(msg)
-    elif not full and load_object('index', 'version', default=0) == cache_version:
+
+    if not full and index_item_version == cache_item_version:
         current_app.logger.warning(
-            f"The index is already up-to-date with cache version {cache_version}, nothing to do."
+            f"The index is already up-to-date with cache version {cache_item_version}, nothing to do."
         )
         return 0
 
@@ -89,7 +91,7 @@ def sync_index(full=False):  # noqa: ARG001
         # cache (the cache might have been cleaned, or it might have been just
         # updated, with an index update still pending).
         save_object("index", "last_update_from_zotero", cache.last_modified())
-        save_object("index", "version", cache_version)
+        save_object('index', 'item-version', cache_version)
         current_app.logger.info(
             f"Index sync successful, now at version {cache_version} "
             f"({count} top level item(s) processed)."
