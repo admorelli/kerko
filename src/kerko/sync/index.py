@@ -21,18 +21,18 @@ def sync_index(full=False):  # noqa: ARG001
 
     cache = open_index("cache")
     cache_version = load_object("cache", "version", default=0)
-    if not cache_version:
-        msg = "The cache is empty and needs to be synchronized first."
-        raise SearchIndexError(msg)
 
     # FIXME: The following does not detect when just the collections have changed in the cache
     #        (with no item changes). Should check the collections_version!
     #        https://pyzotero.readthedocs.io/en/latest/#zotero.Zotero.collection_versions
-    # if not full and load_object('index', 'version', default=0) == cache_version:
-    #     current_app.logger.warning(
-    #         f"The index is already up-to-date with cache version {cache_version}, nothing to do."
-    #     )
-    #     return 0
+    if not cache_version:
+        msg = "The cache is empty and needs to be synchronized first."
+        raise SearchIndexError(msg)
+    elif not full and load_object('index', 'version', default=0) == cache_version:
+        current_app.logger.warning(
+            f"The index is already up-to-date with cache version {cache_version}, nothing to do."
+        )
+        return 0
 
     def yield_items(parent_key):
         with cache.searcher() as searcher:
