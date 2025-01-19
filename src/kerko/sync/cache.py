@@ -30,6 +30,7 @@ def get_cache_schema():
         meta=STORED,  # Copied from Zotero.
         data=STORED,  # Copied from Zotero.
         fulltext=STORED,  # Kerko addition.
+        cite=STORED, # kerko addition
     )
     for format_ in get_formats():
         schema.add(format_, STORED)
@@ -76,6 +77,7 @@ def sync_cache(full=False):
                 "links": item.get("links", {}),
                 "meta": item.get("meta", {}),
                 "data": item.get("data", {}),
+                "cite": item.get("cite", {})
             }
             for format_ in formats:
                 if format_ in item:

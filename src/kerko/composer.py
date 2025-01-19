@@ -362,12 +362,11 @@ class Composer:
         for style in config_get(config, 'kerko.zotero.csl_style'):
             self.add_field(
                 FieldSpec(
-                    key='cite_' + style,
+                    key=f'cite_{style}',
                     field_type=STORED,
-                    extractor=extractors.ConvertCitationExtractor(
-                        target_format=style,
-                        max_attempts=config_get(config, 'kerko.zotero.max_attempts'),
-                        wait=config_get(config, 'kerko.zotero.wait')
+                    extractor=extractors.CitationItemExtractor(
+                        key=style,
+                        format_="bib"
                     )
                 ),
             )

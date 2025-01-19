@@ -208,6 +208,12 @@ class ItemExtractor(KeyExtractor):
     def extract(self, item, library_context, spec):  # noqa: ARG002
         return item.get(self.key)
 
+class CitationItemExtractor(KeyExtractor):
+    """Extract a value from an item."""
+
+    def extract(self, item, library_context, spec):  # noqa: ARG002
+        return item.get("cite").get(self.key)
+
 
 class ItemDataExtractor(KeyExtractor):
     """Extract a value from item data."""
@@ -882,70 +888,3 @@ class SortDateExtractor(Extractor):
         parsed_date = item.get("meta", {}).get("parsedDate", "")
         year, month, day = parse_partial_date(parsed_date)
         return int(f"{year:04d}{month:02d}{day:02d}")
-
-
-# Citation generation
-class ConvertCitationExtractor(Extractor):
-    CITATION_STYLE_DICT = {
-        'APA': 'apa',
-        'ABNT': 'associacao-brasileira-de-normas-tecnicas'
-    }
-
-    def apply_transformers(self, item, target):
-        return self.get_transformer(item, target)
-
-    def get_transformer(self, item, target):
-        if str.upper(target) in ConvertCitationExtractor.CITATION_STYLE_DICT:
-            return self.get_zotero_citation(item, ConvertCitationExtractor.CITATION_STYLE_DICT[str.upper(target)])
-        else:
-            return self.get_zotero_citation(item, target)
-
-
-    def get_zotero_citation(self, item, target):
-        from kerko.sync import zotero
-        from pyzotero import zotero_errors
-        import requests
-        from time import sleep
-        api = zotero.init_zotero()
-        attempts = 1
-        while True:
-            try:
-                return api.item(item, content='bib', style=target)[0]
-            except (
-                    requests.exceptions.ConnectionError,
-                    zotero_errors.HTTPError,
-                    zotero_errors.UnsupportedParams
-            ) as e:
-                current_app.logger.warning(e)
-                if attempts < self.max_attempts:
-                    current_app.logger.warning(
-                        f"The Zotero API request has failed in {zotero.__name__}. "
-                        f"New attempt in {self.wait} seconds..."
-                    )
-                    attempts += 1
-                    sleep(self.wait)
-                else:
-                    current_app.logger.error(
-                        "The maximum number of API call attempts to Zotero has "
-                        "been reached. Stopping."
-                    )
-                    raise
-
-    def __init__(self, *, target_format, max_attempts, wait, **kwargs):
-        """
-        Initialize the extractor.
-
-        :param Extractor extractor: Base extractor to wrap.
-
-        :param list transformers: List of callables that will be chained to
-            transform the extracted data. Each callable takes a value as
-            argument and returns the transformed value.
-        """
-        super().__init__(**kwargs)
-        self.targetFormat = target_format
-        self.max_attempts = max_attempts
-        self.wait = wait
-
-    def extract(self, item, library_context, spec):
-        value = item.get('key')
-        return self.apply_transformers(value, self.targetFormat)

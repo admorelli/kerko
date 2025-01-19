@@ -341,23 +341,13 @@ class Items:
             except StopIteration:
                 self._next_batch()
 
-    @retry_zotero
     def _next_batch(self):
         limit = config("kerko.zotero.batch_size")
         current_app.logger.info(
             f"Requesting up to {limit} {self.method_info} items since version {self.since}, "
             f"starting at position {self.start}..."
         )
-        params = {
-            "since": self.since,
-            "start": self.start,
-            "limit": limit,
-            "sort": "dateAdded",
-            "direction": "asc",
-            "include": self.include,
-            "style": config("kerko.zotero.csl_style")[0],
-        }
-        self.zotero_batch = getattr(self.zotero_credentials, self.method)(**params)
+        self.zotero_batch = self._call_iter_csl()
         if not self.zotero_batch:
             raise StopIteration  # Empty batch, nothing more to iterate on.
         self.iterator = iter(self.zotero_batch)
@@ -366,3 +356,37 @@ class Items:
         zotero_item = next(self.iterator)
         self.start += 1
         return zotero_item
+
+    @retry_zotero
+    def _call_iter_csl(self):
+        CITATION_STYLE_DICT = {
+            'APA': 'apa',
+            'ABNT': 'associacao-brasileira-de-normas-tecnicas'
+        }
+        results = {}
+        limit = config("kerko.zotero.batch_size")
+        for style in config("kerko.zotero.csl_style"):
+            request_style = style
+            if style.upper() in CITATION_STYLE_DICT.keys():
+                request_style = CITATION_STYLE_DICT[style.upper()]
+            params = {
+                "since": self.since,
+                "start": self.start,
+                "limit": limit,
+                "sort": "dateAdded",
+                "direction": "asc",
+                "include": self.include,
+                "style":  request_style
+            }
+            results[style] = getattr(self.zotero_credentials, self.method)(**params)
+
+        end_result = {}
+        for style,result in results.items():
+            if len(end_result) == 0:
+                end_result = result
+            for i in range(len(result)):
+                if "cite" not in end_result[i].keys():
+                    end_result[i]["cite"] = {}
+                end_result[i]["cite"][style] = result[i].get("bib")
+        #current_app.logger.debug(end_result)
+        return end_result
