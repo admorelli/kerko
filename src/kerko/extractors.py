@@ -367,6 +367,33 @@ class CreatorsExtractor(Extractor):
         return RECORD_SEPARATOR.join(creators) if creators else None
 
 
+class CreatorsByTypeExtractor(Extractor):
+    """Flatten and extract creator data."""
+
+    def __init__(self, creator_type, **kwargs):
+        super().__init__(**kwargs)
+        self.creator_type = creator_type
+
+    def extract(self, item, library_context, spec):  # noqa: ARG002
+        creators = []
+        for creator in filter(lambda x: x.get("creatorType") == self.creator_type, item.get("data", {}).get("creators", [])):
+            fullname = creator.get("name")
+            if fullname:
+                creators.append(richtext_striptags(fullname).strip())
+            firstname = richtext_striptags(creator.get("firstName", "")).strip()
+            lastname = richtext_striptags(creator.get("lastName", "")).strip()
+            if firstname and lastname:
+                # Combine firstname and lastname in different orders to help
+                # phrase searches.
+                creators.append(f"{firstname} {lastname}")
+                creators.append(f"{lastname}, {firstname}")
+            elif firstname:
+                creators.append(firstname)
+            elif lastname:
+                creators.append(lastname)
+        return RECORD_SEPARATOR.join(creators) if creators else None
+
+
 class CollectionNamesExtractor(Extractor):
     """Extract item collections for text search."""
 

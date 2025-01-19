@@ -237,6 +237,17 @@ class Composer:
                     extractor=extractors.CreatorsExtractor(),
                 )
             )
+        creators_fields_dict = config_get(config, "kerko.search_fields.creators")
+        for field_key, field_config in creators_fields_dict.items():
+            if field_config["enabled"]:
+                self.add_field(
+                    FieldSpec(
+                        key=f"c_{field_key}",
+                        field_type=TEXT(analyzer=self.name_chain, field_boost=field_dict["boost"]),
+                        scopes=field_config["scopes"],
+                    extractor=extractors.CreatorsByTypeExtractor(creator_type=field_key),
+                )
+            )
         field_dict = config_get(config, "kerko.search_fields.core.optional.collections")
         if field_dict["enabled"]:
             self.add_field(

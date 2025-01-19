@@ -242,6 +242,15 @@ class CoreOptionalSearchFieldModel(BaseModel):
     scopes: List[SlugStr]
     boost: float
 
+class CreatorsFieldModel(BaseModel):
+    """Model for the kerko.search_fields.core.optional config table."""
+
+    class Config:
+        extra = Extra.forbid
+
+    enabled: bool = True
+    scopes: List[SlugStr]
+    boost: float
 
 class ZoteroFieldModel(BaseModel):
     """Model for the kerko.search_fields.zotero config table."""
@@ -271,6 +280,7 @@ class SearchFieldsModel(BaseModel):
 
     core: CoreSearchFieldsModel
     zotero: Dict[FieldNameStr, ZoteroFieldModel]
+    creators: Dict[FieldNameStr, CreatorsFieldModel]
 
 
 class BaseFacetModel(BaseModel, ABC):
