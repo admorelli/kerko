@@ -53,6 +53,7 @@ dependencies = [
     "Whoosh >= 2.7.4",
     "wrapt >= 1.10.0",
     "WTForms >= 3.0.0",
+    "requests >= 2.32.0",
 ]
 
 [project.optional-dependencies]
