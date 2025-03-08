@@ -693,13 +693,13 @@ class Composer:
                     self.add_facet(
                         FlatFacetSpec(
                             key=f"facet_{facet_key}",
-                            field_type=ID(stored=True),
+                            field_type=TEXT(analyzer=self.name_chain, field_boost=field_dict["boost"]),
                             extractor=extractors.CreatorsFacetExtractor(creator_type=facet_key),
                             codec=codecs.BaseFacetCodec(),
                             title=facet_config.get("title") or _("Resource type"),
                             missing_label=_("Unknown"),  # TODO:config: Allow in config.
                             allow_overlap=False,
-                            query_class=Prefix,
+                            query_class=Term,
                             **kwargs,
                         )
                     )
