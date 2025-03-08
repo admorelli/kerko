@@ -862,6 +862,12 @@ class MaximizeParsedDateExtractor(Extractor):
         return None
 
 
+class CreatorsFacetExtractor(CreatorsByTypeExtractor):
+    def __init__(self, encode=encode_multiple, **kwargs):
+        super().__init__(encode=encode, **kwargs)
+
+
+
 def _prepare_sort_text(text):
     """
     Normalize the given text for a sort field.

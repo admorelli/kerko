@@ -692,11 +692,10 @@ class Composer:
                 elif facet_type == "creators":
                     self.add_facet(
                         FlatFacetSpec(
-                            key=f"c_{facet_key}",
+                            key=f"facet_{facet_key}",
                             field_type=ID(stored=True),
-                            extractor=extractors.TagsFacetExtractor(
-                                include_re=config_get(config, "kerko.zotero.tag_include_re"),
-                                exclude_re=config_get(config, "kerko.zotero.tag_exclude_re"),
+                            extractor=extractors.CreatorsFacetExtractor(
+                                creator_type=facet_key
                             ),
                             codec=codecs.BaseFacetCodec(),
                             title=facet_config.get("title") or _("Topic"),
