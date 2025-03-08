@@ -699,7 +699,7 @@ class Composer:
                             ),
                             codec=codecs.BaseFacetCodec(),
                             title=facet_config.get("title") or _("Topic"),
-                            missing_label=None,  # TODO:config: Allow in config.
+                            missing_label="Unknown",  # TODO:config: Allow in config.
                             allow_overlap=True,
                             query_class=Term,
                             **kwargs,
