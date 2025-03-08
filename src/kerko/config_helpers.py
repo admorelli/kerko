@@ -338,6 +338,11 @@ class CollectionFacetModel(BaseFacetModel):
     collection_key: str = Field(regex=r"^[A-Z0-9]{8}$")
 
 
+class CreatorsFacetModel(BaseFacetModel):
+    type: Literal["creators"]  # noqa: A003
+    title: Optional[str]
+
+
 # Note: Discriminated unions ensure that a single unambiguous error gets
 # reported when validation fails. Reference:
 # https://docs.pydantic.dev/latest/usage/types/#discriminated-unions-aka-tagged-unions
@@ -350,6 +355,7 @@ FacetModelUnion = Annotated[
         LanguageFacetModel,
         LinkFacetModel,
         CollectionFacetModel,
+        CreatorsFacetModel
     ],
     Field(discriminator="type"),
 ]

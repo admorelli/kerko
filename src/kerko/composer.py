@@ -689,6 +689,23 @@ class Composer:
                             **kwargs,
                         )
                     )
+                elif facet_type == "creators":
+                    self.add_facet(
+                        FlatFacetSpec(
+                            key=f"c_{facet_key}",
+                            field_type=ID(stored=True),
+                            extractor=extractors.TagsFacetExtractor(
+                                include_re=config_get(config, "kerko.zotero.tag_include_re"),
+                                exclude_re=config_get(config, "kerko.zotero.tag_exclude_re"),
+                            ),
+                            codec=codecs.BaseFacetCodec(),
+                            title=facet_config.get("title") or _("Topic"),
+                            missing_label=None,  # TODO:config: Allow in config.
+                            allow_overlap=True,
+                            query_class=Term,
+                            **kwargs,
+                        )
+                    )
 
     def init_sorts(self, config: Config) -> None:
         """
