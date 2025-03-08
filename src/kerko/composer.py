@@ -695,7 +695,7 @@ class Composer:
                             key=f"facet_{facet_key}",
                             field_type=TEXT(analyzer=self.name_chain),
                             extractor=extractors.CreatorsFacetExtractor(creator_type=facet_key),
-                            codec=codecs.BaseFacetCodec(),
+                            codec=codecs.CreatorsFacetCodec(),
                             title=facet_config.get("title") or _("Resource type"),
                             missing_label=_("Unknown"),  # TODO:config: Allow in config.
                             allow_overlap=False,

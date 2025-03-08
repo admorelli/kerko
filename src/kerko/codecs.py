@@ -211,3 +211,45 @@ class YearTreeFacetCodec(BaseFacetCodec):
             if start == end:
                 return encoded_value, _("In {}").format(end)
         return encoded_value, _("Between {} and {}").format(start, end)
+
+
+
+class CreatorsFacetCodec(BaseFacetCodec):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+    """
+    Encode or decode values and labels.
+    """
+
+    def encode(self, value):
+        """
+        Encode the given value.
+
+        This default implementation returns the value as-is.
+        """
+        current_app.logger.debug(f"value inside codec(decode): {value}")
+        return value
+
+    def decode(self, encoded_value, default_value=None, default_label=None):  # noqa: ARG002
+        """
+        Decode the given value into its original value and label components.
+
+        Always pass encoded value as the default_value, unless there is a more
+        reasonable default. Pass None only when None is really wanted for
+        values that cannot be decoded. Some codecs may ignore those defaults.
+
+        This default implementation returns the encoded value as-is for both
+        its value and its label.
+
+        :return: A (value, label) tuple.
+        """
+        current_app.logger.debug(f"value inside codec(encode): {encoded_value}")
+        return encoded_value, encoded_value
+
+    def transform_for_query(self, value):
+        """
+        Transform a value before use in a query.
+
+        This default implementation returns the encoded value as-is.
+        """
+        return value
