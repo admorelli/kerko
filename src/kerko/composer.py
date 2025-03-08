@@ -693,7 +693,7 @@ class Composer:
                     self.add_facet(
                         FlatFacetSpec(
                             key=f"facet_{facet_key}",
-                            field_type=TEXT(analyzer=self.name_chain, field_boost=field_dict["boost"]),
+                            field_type=TEXT(analyzer=self.name_chain),
                             extractor=extractors.CreatorsFacetExtractor(creator_type=facet_key),
                             codec=codecs.BaseFacetCodec(),
                             title=facet_config.get("title") or _("Resource type"),
