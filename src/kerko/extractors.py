@@ -862,18 +862,10 @@ class MaximizeParsedDateExtractor(Extractor):
         return None
 
 
-class CreatorsFacetExtractor(Extractor):
+class CreatorsFacetExtractor(CreatorsByTypeExtractor):
 
-    def __init__(self, creator_type, encode=encode_multiple, **kwargs):
+    def __init__(self, encode=encode_multiple, **kwargs):
         super().__init__(encode=encode, **kwargs)
-        self.creator_type = creator_type
-
-    def extract(self, item, library_context, spec):  # noqa: ARG002
-        creator = item.get("data", {}).get(f"creators_{self.creator_type}", "")
-        if creator:
-            return creator
-        return None
-
 
 
 def _prepare_sort_text(text):

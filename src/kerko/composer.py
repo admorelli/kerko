@@ -694,14 +694,12 @@ class Composer:
                         FlatFacetSpec(
                             key=f"facet_{facet_key}",
                             field_type=ID(stored=True),
-                            extractor=extractors.CreatorsFacetExtractor(
-                                creator_type=facet_key
-                            ),
-                            codec=codecs.BaseFacetCodec(),
-                            title=facet_config.get("title") or _("Topic"),
-                            missing_label="Unknown",  # TODO:config: Allow in config.
-                            allow_overlap=True,
-                            query_class=Term,
+                            extractor=extractors.CreatorsFacetExtractor(creator_type=facet_key),
+                            codec=codecs.ItemTypeFacetCodec(label_separator="\x1e"),
+                            title=facet_config.get("title") or _("Resource type"),
+                            missing_label=_("Unknown"),  # TODO:config: Allow in config.
+                            allow_overlap=False,
+                            query_class=Prefix,
                             **kwargs,
                         )
                     )
