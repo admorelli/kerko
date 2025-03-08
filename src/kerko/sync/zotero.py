@@ -67,6 +67,7 @@ def retry_zotero(wrapped, _instance, args, kwargs):
 
 
 def init_zotero():
+    zotero.timeout = None
     return zotero.Zotero(
         library_id=config("ZOTERO_LIBRARY_ID"),
         library_type=config("ZOTERO_LIBRARY_TYPE"),
@@ -357,7 +358,6 @@ class Items:
         self.start += 1
         return zotero_item
 
-    @retry_zotero
     def _call_iter_csl(self):
         CITATION_STYLE_DICT = {
             'APA': 'apa',
@@ -369,16 +369,7 @@ class Items:
             request_style = style
             if style.upper() in CITATION_STYLE_DICT.keys():
                 request_style = CITATION_STYLE_DICT[style.upper()]
-            params = {
-                "since": self.since,
-                "start": self.start,
-                "limit": limit,
-                "sort": "dateAdded",
-                "direction": "asc",
-                "include": self.include,
-                "style":  request_style
-            }
-            results[style] = getattr(self.zotero_credentials, self.method)(**params)
+            results[style] = self._do_ActualCall(request_style, limit)
 
         end_result = {}
         for style,result in results.items():
@@ -388,5 +379,17 @@ class Items:
                 if "cite" not in end_result[i].keys():
                     end_result[i]["cite"] = {}
                 end_result[i]["cite"][style] = result[i].get("bib")
-        #current_app.logger.debug(end_result)
         return end_result
+
+    @retry_zotero
+    def _do_ActualCall(self, style, limit):
+        params = {
+            "since": self.since,
+            "start": self.start,
+            "limit": limit,
+            "sort": "dateAdded",
+            "direction": "asc",
+            "include": self.include,
+            "style": style
+        }
+        return getattr(self.zotero_credentials, self.method)(**params)
