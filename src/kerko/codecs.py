@@ -62,7 +62,6 @@ class BaseFacetCodec:
 
         This default implementation returns the value as-is.
         """
-        current_app.debug(f"Got value on decode '{value}'")
         return value
 
     def decode(self, encoded_value, default_value=None, default_label=None):  # noqa: ARG002
@@ -78,7 +77,6 @@ class BaseFacetCodec:
 
         :return: A (value, label) tuple.
         """
-        current_app.debug(f"Got value on encode '{encoded_value}'")
         return encoded_value, encoded_value
 
     def transform_for_query(self, value):
