@@ -3,7 +3,7 @@ from collections.abc import Iterable
 from typing import Any, Dict, List, Optional
 
 from babel.numbers import format_decimal
-from flask import Request, url_for
+from flask import Request, url_for, current_app
 from flask_babel import get_locale
 from w3lib.url import safe_url_string
 from werkzeug.datastructures import MultiDict
@@ -295,6 +295,84 @@ class FlatFacetSpec(FacetSpec):
     def build(self, results, criteria, active_only=False):
         items = []
         for value, count in results.items():
+            if value or self.missing_label:
+                value, label = self.decode(value, default_value=value, default_label=value)  # noqa: PLW2901
+                new_filters = self.remove_filter(value, criteria.filters)
+                if new_filters:
+                    remove_url = url_for(
+                        ".search",
+                        **criteria.params(
+                            filters=new_filters,
+                            options={
+                                "page": None,
+                                "page-len": None,
+                                "id": None,
+                            },
+                        ),
+                    )
+                else:
+                    remove_url = None
+                if remove_url or active_only:
+                    add_url = None
+                else:
+                    new_filters = self.add_filter(value, criteria.filters)
+                    if new_filters:
+                        add_url = url_for(
+                            ".search",
+                            **criteria.params(
+                                filters=new_filters,
+                                options={
+                                    "page": None,
+                                    "page-len": None,
+                                    "id": None,
+                                },
+                            ),
+                        )
+                    else:
+                        add_url = None
+                if remove_url or add_url:  # Only items with an URL get displayed.
+                    items.append(
+                        {
+                            "label": label,
+                            "count": count,
+                            "count_formatted": format_decimal(count, locale=get_locale()),
+                            "remove_url": remove_url,
+                            "add_url": add_url,
+                        }
+                    )
+        return self.sort_items(items)
+
+
+class CreatorsFacetSpec(FacetSpec):
+    def __init__(self, item_separator=".", **kwargs):
+        super().__init__(**kwargs)
+        self.item_separator = item_separator
+
+    def add_filter(self, value, active_filters):
+        if value is None:  # Special case for missing value (None is returned by Whoosh).
+            value = ""
+        filters = active_filters.deepcopy()
+        active_values = filters.getlist(self.filter_key)
+        if active_values and value in active_values:
+            return None  # Already filtering with value. No add needed.
+        filters.setlistdefault(self.filter_key).append(value)
+        return filters
+
+    def remove_filter(self, value, active_filters):
+        if value is None:  # Special case for missing value (None is returned by Whoosh).
+            value = ""
+        filters = active_filters.deepcopy()
+        active_values = filters.getlist(self.filter_key)
+        if not active_values or value not in active_values:
+            return None  # Not currently filtering with value. No remove needed.
+        active_values.remove(value)
+        filters.setlist(self.filter_key, active_values)
+        return filters
+
+    def build(self, results, criteria, active_only=False):
+        items = []
+        current_app.logger.debug(results)
+        for value, count in self.item_separator.split(results):
             if value or self.missing_label:
                 value, label = self.decode(value, default_value=value, default_label=value)  # noqa: PLW2901
                 new_filters = self.remove_filter(value, criteria.filters)

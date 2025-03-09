@@ -691,7 +691,7 @@ class Composer:
                     )
                 elif facet_type == "creators":
                     self.add_facet(
-                        FlatFacetSpec(
+                        CreatorsFacetSpec(
                             key=f"facet_{facet_key}",
                             field_type=TEXT(analyzer=self.name_chain),
                             extractor=extractors.CreatorsFacetExtractor(creator_type=facet_key),
