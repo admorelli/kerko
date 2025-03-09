@@ -21,6 +21,7 @@ from kerko.specs import (
     FacetSpec,
     FieldSpec,
     FlatFacetSpec,
+    CreatorsFacetSpec,
     LanguageFacetSpec,
     LinkGroupSpec,
     PageSpec,
