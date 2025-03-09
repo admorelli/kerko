@@ -864,13 +864,16 @@ class MaximizeParsedDateExtractor(Extractor):
 
 class CreatorsFacetExtractor(CreatorsByTypeExtractor):
 
-    def __init__(self, encode=encode_multiple, **kwargs):
+    def __init__(self, item_separator="\x1e", encode=encode_multiple, **kwargs):
+        self.item_separator = item_separator
         super().__init__(encode=encode, **kwargs)
 
     def extract(self, item, library_context, spec):  # noqa: ARG002
-        temp = super().extract(item, library_context, spec)
+        temp =  super().extract(item, library_context, spec)
         current_app.logger.debug(f"Result on Extractor(CreatorsFacetExtractor) {temp}")
-        return temp
+        temparr = self.item_separator.split(temp)
+        current_app.logger.debug(f"Splitted Result on Extractor(CreatorsFacetExtractor) {temparr}")
+        return temparr
 
 
 def _prepare_sort_text(text):
