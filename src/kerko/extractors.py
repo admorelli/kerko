@@ -872,7 +872,7 @@ class CreatorsFacetExtractor(CreatorsByTypeExtractor):
         result =  super().extract(item, library_context, spec)
         if result:
             strresult = str(result).split(self.item_separator)
-            current_app.logger.debug(f"Splitted Result on Extractor(CreatorsFacetExtractor) {strresult}"
+            current_app.logger.debug(f"Splitted Result on Extractor(CreatorsFacetExtractor) {strresult}")
             return strresult
         return None
 
