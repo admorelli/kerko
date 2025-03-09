@@ -869,7 +869,7 @@ class CreatorsFacetExtractor(CreatorsByTypeExtractor):
         super().__init__(encode=encode, **kwargs)
 
     def extract(self, item, library_context, spec):  # noqa: ARG002
-        temp =  super().extract(item, library_context, spec)
+        temp =  str(super().extract(item, library_context, spec))
         current_app.logger.debug(f"Result on Extractor(CreatorsFacetExtractor) {temp}")
         temparr = temp.split(self.item_separator)
         current_app.logger.debug(f"Splitted Result on Extractor(CreatorsFacetExtractor) {temparr}")
