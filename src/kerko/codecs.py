@@ -227,7 +227,7 @@ class CreatorsFacetCodec(BaseFacetCodec):
 
         This default implementation returns the value as-is.
         """
-        current_app.logger.debug(f"value inside codec(decode): {value}")
+        # current_app.logger.debug(f"value inside codec(decode): {value}")
         return value
 
     def decode(self, encoded_value, default_value=None, default_label=None):  # noqa: ARG002
@@ -243,7 +243,7 @@ class CreatorsFacetCodec(BaseFacetCodec):
 
         :return: A (value, label) tuple.
         """
-        current_app.logger.debug(f"value inside codec(encode): {encoded_value}")
+        # current_app.logger.debug(f"value inside codec(encode): {encoded_value}")
         return encoded_value, encoded_value
 
     def transform_for_query(self, value):

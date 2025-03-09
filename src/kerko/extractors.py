@@ -867,6 +867,11 @@ class CreatorsFacetExtractor(CreatorsByTypeExtractor):
     def __init__(self, encode=encode_multiple, **kwargs):
         super().__init__(encode=encode, **kwargs)
 
+    def extract(self, item, library_context, spec):  # noqa: ARG002
+        temp = super().extract(item, library_context, spec)
+        current_app.logger.debug(f"Result on Extractor(CreatorsFacetExtractor) {temp}")
+        return temp
+
 
 def _prepare_sort_text(text):
     """

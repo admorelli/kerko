@@ -344,7 +344,7 @@ class FlatFacetSpec(FacetSpec):
 
 
 class CreatorsFacetSpec(FacetSpec):
-    def __init__(self, item_separator=".", **kwargs):
+    def __init__(self, item_separator="\x1e", **kwargs):
         super().__init__(**kwargs)
         self.item_separator = item_separator
 
