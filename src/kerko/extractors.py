@@ -872,7 +872,7 @@ class CreatorsFacetExtractor(CreatorsByTypeExtractor):
         result =  super().extract(item, library_context, spec) or None
         if result:
             resultarr = str(result).split(self.item_separator)
-            current_app.logger.debug(f'Authors: {resultarr}')
+            current_app.logger.debug(f'"{item.get('data', {}).get('title', "")}" Authors: {resultarr}')
             return resultarr
         return None
 
