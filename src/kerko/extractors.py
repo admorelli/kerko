@@ -869,9 +869,11 @@ class CreatorsFacetExtractor(CreatorsByTypeExtractor):
         super().__init__(encode=encode, **kwargs)
 
     def extract(self, item, library_context, spec):  # noqa: ARG002
-        result =  super().extract(item, library_context, spec)
+        result =  super().extract(item, library_context, spec) or None
         if result:
-            return str(result).split(self.item_separator)
+            resultarr = str(result).split(self.item_separator)
+            current_app.logger.debug(f'Authors: {resultarr}')
+            return resultarr
         return None
 
 
