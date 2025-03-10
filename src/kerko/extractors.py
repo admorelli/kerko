@@ -380,17 +380,18 @@ class CreatorsByTypeExtractor(Extractor):
             fullname = creator.get("name")
             if fullname:
                 creators.append(richtext_striptags(fullname).strip())
-            firstname = richtext_striptags(creator.get("firstName", "")).strip()
-            lastname = richtext_striptags(creator.get("lastName", "")).strip()
-            if firstname and lastname:
-                # Combine firstname and lastname in different orders to help
-                # phrase searches.
-                creators.append(f"{firstname} {lastname}")
-                creators.append(f"{lastname}, {firstname}")
-            elif firstname:
-                creators.append(firstname)
-            elif lastname:
-                creators.append(lastname)
+            else:
+                firstname = richtext_striptags(creator.get("firstName", "")).strip()
+                lastname = richtext_striptags(creator.get("lastName", "")).strip()
+                if firstname and lastname:
+                    # Combine firstname and lastname in different orders to help
+                    # phrase searches.
+                    creators.append(f"{firstname} {lastname}")
+                    creators.append(f"{lastname}, {firstname}")
+                elif firstname:
+                    creators.append(firstname)
+                elif lastname:
+                    creators.append(lastname)
         return RECORD_SEPARATOR.join(creators) if creators else None
 
 
