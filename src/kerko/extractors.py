@@ -387,7 +387,6 @@ class CreatorsByTypeExtractor(Extractor):
                     # Combine firstname and lastname in different orders to help
                     # phrase searches.
                     creators.append(f"{firstname} {lastname}")
-                    creators.append(f"{lastname}, {firstname}")
                 elif firstname:
                     creators.append(firstname)
                 elif lastname:
